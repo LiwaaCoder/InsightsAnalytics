@@ -1,17 +1,20 @@
 package com.example.insightanalytics;
 
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
+import android.content.Context;
+import androidx.annotation.NonNull;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AvgActivityTime {
 
     private static AvgActivityTime instance;
-    private  Map<String, Long> activityStartTimes;
-    private  Map<String, Long> activityTotalTimes;
-    private  Map<String, Integer> activitySessionCounts;
+    private final Map<String, Long> activityStartTimes;
+    private final Map<String, Long> activityTotalTimes;
+    private final Map<String, Integer> activitySessionCounts;
+    private FirebaseFirestore firestore;
+    private String appId;
 
     private AvgActivityTime() {
         activityStartTimes = new HashMap<>();
@@ -26,10 +29,27 @@ public class AvgActivityTime {
         return instance;
     }
 
+    // Initialize Firebase
+    public void initializeFirebase(@NonNull Context context, @NonNull String appId, @NonNull String appVersion) {
+        FirebaseApp.initializeApp(context);
+        firestore = FirebaseFirestore.getInstance();
+        this.appId = appId;
+
+        // Send static device data
+        StaticDataCollector.getInstance().sendDeviceData(context);
+
+        // Update app version count
+        StaticDataCollector.getInstance().updateAppVersionCount(appId, appVersion);
+
+        // Update user count
+        StaticDataCollector.getInstance().updateUserCount(context, appId);
+    }
+
     // Start tracking activity
     public void startActivity(String activityName) {
         long startTime = System.currentTimeMillis();
         activityStartTimes.put(activityName, startTime);
+        incrementActivityStartCount(activityName);
     }
 
     // End tracking activity
@@ -57,44 +77,120 @@ public class AvgActivityTime {
         return 0;
     }
 
-    public void registerActivityLifecycleCallbacks(Application application) {
-        application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                // No action needed on activity created
-            }
+    // Increment activity start count
+    private void incrementActivityStartCount(String activityName) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put(activityName, FieldValue.increment(1));
+        updateData.put("timestamp", FieldValue.serverTimestamp());
 
-            @Override
-            public void onActivityStarted(Activity activity) {
-                String activityName = activity.getClass().getSimpleName();
-                startActivity(activityName);
-            }
+        firestore.collection(appId).document("ActivityStartCounts")
+                .set(updateData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    // Handle success
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                    Map<String, Object> initialData = new HashMap<>();
+                    initialData.put(activityName, 1);
+                    initialData.put("timestamp", FieldValue.serverTimestamp());
+                    firestore.collection(appId).document("ActivityStartCounts")
+                            .set(initialData, SetOptions.merge());
+                });
+    }
 
-            @Override
-            public void onActivityResumed(Activity activity) {
-                // No action needed on activity resumed
-            }
+    // Send average times to Firestore
+    public void sendAverageTimesToFirestore() {
+        if (firestore == null) {
+            throw new IllegalStateException("Firestore not initialized. Call initializeFirebase(context, appId, appVersion) first.");
+        }
 
-            @Override
-            public void onActivityPaused(Activity activity) {
-                // No action needed on activity paused
-            }
+        Map<String, Object> avgTimes = new HashMap<>();
+        for (String activityName : activityTotalTimes.keySet()) {
+            long avgTime = getAverageActivityTime(activityName);
+            avgTimes.put(activityName, avgTime);
+        }
+        avgTimes.put("timestamp", FieldValue.serverTimestamp());
 
-            @Override
-            public void onActivityStopped(Activity activity) {
-                String activityName = activity.getClass().getSimpleName();
-                endActivity(activityName);
-            }
+        firestore.collection(appId).document("ActivityTimes")
+                .set(avgTimes, SetOptions.merge())
+                .addOnSuccessListener(documentReference -> {
+                    // Log success or handle accordingly
+                })
+                .addOnFailureListener(e -> {
+                    // Log failure or handle accordingly
+                });
+    }
 
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                // No action needed on activity save instance state
-            }
+    // Retrieve top 10 activities based on average activity time
+    public void getTop10ActivitiesByAvgTime() {
+        firestore.collection(appId).document("ActivityTimes")
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            data.entrySet().stream()
+                                    .filter(entry -> !entry.getKey().equals("timestamp"))
+                                    .sorted((entry1, entry2) -> Long.compare((Long) entry2.getValue(), (Long) entry1.getValue()))
+                                    .limit(10)
+                                    .forEach(entry -> {
+                                        String activityName = entry.getKey();
+                                        Long avgTime = (Long) entry.getValue();
+                                        // Display or handle the top 10 activities based on average time
+                                        System.out.println("Activity: " + activityName + ", Avg Time: " + avgTime);
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                });
+    }
 
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-                // No action needed on activity destroyed
-            }
-        });
+    // Retrieve top 10 activities based on start counts
+    public void getTop10ActivitiesByStartCount() {
+        firestore.collection(appId).document("ActivityStartCounts")
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            data.entrySet().stream()
+                                    .filter(entry -> !entry.getKey().equals("timestamp"))
+                                    .sorted((entry1, entry2) -> Long.compare((Long) entry2.getValue(), (Long) entry1.getValue()))
+                                    .limit(10)
+                                    .forEach(entry -> {
+                                        String activityName = entry.getKey();
+                                        Long startCount = (Long) entry.getValue();
+                                        // Display or handle the top 10 activities based on start count
+                                        System.out.println("Activity: " + activityName + ", Start Count: " + startCount);
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                });
+    }
+
+    // Retrieve and sort data by timestamp
+    public void getActivityDataSortedByDate() {
+        firestore.collection(appId).orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(10)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Map<String, Object> data = documentSnapshot.getData();
+                        if (data != null) {
+                            String documentId = documentSnapshot.getId();
+                            Long timestamp = documentSnapshot.getLong("timestamp");
+                            // Display or handle the data sorted by date
+                            System.out.println("Document ID: " + documentId + ", Timestamp: " + timestamp + ", Data: " + data);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                });
     }
 }
