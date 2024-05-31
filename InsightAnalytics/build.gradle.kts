@@ -1,11 +1,11 @@
 plugins {
     id("com.android.library")
-    id("com.google.gms.google-services")
+   // id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.insightanalytics"
-    compileSdk = 33
+    compileSdk = 31
 
     defaultConfig {
         minSdk = 24
