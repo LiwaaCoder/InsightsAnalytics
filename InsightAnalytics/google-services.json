@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "186940011166",
-    "project_id": "insightsanalytics-db0d9",
-    "storage_bucket": "insightsanalytics-db0d9.appspot.com"
+    "project_number": "38874882757",
+    "project_id": "insight-website-7f69d",
+    "storage_bucket": "insight-website-7f69d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:186940011166:android:0bbd0ef2bcbecbb4bfc18f",
+        "mobilesdk_app_id": "1:38874882757:android:abf34e4cdad04fdbf406ac",
         "android_client_info": {
           "package_name": "com.example.insightanalytics"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDs2uyuKDrrZUMYlqhACHnCVI5kCKdyVow"
+          "current_key": "AIzaSyCGHgqYCGVKI2tTxbTfEnHBXUJITzsZcHo"
         }
       ],
       "services": {

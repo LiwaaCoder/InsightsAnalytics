@@ -36,6 +36,7 @@ public class StaticDataCollector {
         Map<String, Object> deviceData = new HashMap<>();
         deviceData.put("deviceModel", deviceModel);
         deviceData.put("androidVersion", androidVersion);
+        // to update app version
         deviceData.put("country", country);
         deviceData.put("timestamp", FieldValue.serverTimestamp());
 
