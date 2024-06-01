@@ -1,6 +1,8 @@
 plugins {
     id("com.android.library")
-   // id("com.google.gms.google-services")
+    id("maven-publish")
+
+    // id("com.google.gms.google-services")
 }
 
 android {
@@ -37,6 +39,16 @@ buildscript {
         mavenCentral()
     }
 }
+
+publishing {
+    publications {
+        register<MavenPublication>("release_new1") {
+        }
+    }
+}
+
+
+
 
 dependencies {
 
