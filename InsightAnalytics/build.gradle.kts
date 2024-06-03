@@ -40,6 +40,15 @@ buildscript {
     }
 }
 
+publishing {
+    publications {
+        register<MavenPublication>("release_new1") {
+
+        }
+    }
+}
+
+
 
 
 dependencies {
