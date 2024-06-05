@@ -17,3 +17,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "InsightsAnalytics"
 include(":InsightAnalytics")
+include(":myapplication")
+include(":app", ":InsightAnalytics")
+
