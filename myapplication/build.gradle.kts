@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-   // id ("com.google.gms.google-services")
+    id ("com.google.gms.google-services")
 }
 
 android {
@@ -37,6 +37,12 @@ dependencies {
 
     implementation(project(":InsightAnalytics"))
 
+    implementation ("com.google.firebase:firebase-analytics:20.0.2")
+    implementation ("com.google.firebase:firebase-core:20.0.0")
+    implementation ("com.google.firebase:firebase-analytics:20.0.0")
+    implementation ("com.google.firebase:firebase-firestore:23.0.0")
+
+
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -46,3 +52,5 @@ dependencies {
 
 
 }
+
+

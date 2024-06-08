@@ -1,8 +1,10 @@
+// MainActivity.java
 package com.example.myapplication;
 
-
-import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.example.insightanalytics.StaticDataCollector;
 
 public class MainActivity extends AppCompatActivity {
@@ -12,18 +14,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get the instance of StaticDataCollector
-        StaticDataCollector dataCollector = StaticDataCollector.getInstance();
+        // Initialize StaticDataCollector
+        StaticDataCollector dataCollector = StaticDataCollector.getInstance(this);
 
-        // Send device data
-        dataCollector.sendDeviceData(this);
+        // Generate and save app token
+        String appName = "MyApplication";
+        String appToken = dataCollector.generateAndSaveAppToken(appName);
 
-        // Update app version count
-        String appId = "your_app_id"; // Replace with your actual app ID
-        String appVersion = "1.0.0";  // Replace with your actual app version
-        dataCollector.updateAppVersionCount(appId, appVersion);
+        // Use the token for further operations
+        if (appToken != null) {
+            dataCollector.sendDeviceData(this, appToken);
+            dataCollector.updateAppVersionCount(appToken, "1.0.0");
+            dataCollector.updateUserCount(this, appToken);
 
-        // Update user count
-        dataCollector.updateUserCount(this, appId);
+            // Retrieve and log device data
+            dataCollector.getDeviceData(appToken);
+        } else {
+            Log.e("MainActivity", "Failed to generate app token.");
+        }
     }
 }

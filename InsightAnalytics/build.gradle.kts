@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("maven-publish")
 
-    // id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -53,6 +53,8 @@ publishing {
 
 dependencies {
 
+
+
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -66,3 +68,5 @@ dependencies {
     implementation ("com.github.LiwaaCoder:InsightsAnalytics:1.0.0")
 
 }
+
+apply(plugin = "com.google.gms.google-services")

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:38874882757:android:abf34e4cdad04fdbf406ac",
+        "mobilesdk_app_id": "1:38874882757:android:32ce888a2ee6b9c9f406ac",
         "android_client_info": {
-          "package_name": "com.example.insightanalytics"
+          "package_name": "com.example.myapplication"
         }
       },
       "oauth_client": [],

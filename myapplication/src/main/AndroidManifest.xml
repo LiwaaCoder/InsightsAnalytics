@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.myapplication">
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.InsightsAnalytics">
+        <activity
+            android:name=".MyApp"
+            android:exported="false" />
+        <!-- Add Firebase metadata -->
+        <meta-data
+            android:name="com.google.firebase.database.collection"
+            android:value="your_firestore_database_url" />
+        <meta-data
+            android:name="com.google.firebase.project_id"
+            android:value="your_project_id" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="new" /> <!-- Add other metadata as needed -->
         <activity
             android:name=".MainActivity"
             android:exported="true">

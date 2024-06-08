@@ -31,18 +31,20 @@ public class AvgActivityTime {
 
     // Initialize Firebase
     public void initializeFirebase(@NonNull Context context, @NonNull String appId, @NonNull String appVersion) {
-        FirebaseApp.initializeApp(context);
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            FirebaseApp.initializeApp(context);
+        }
         firestore = FirebaseFirestore.getInstance();
         this.appId = appId;
 
         // Send static device data
-        StaticDataCollector.getInstance().sendDeviceData(context);
+        StaticDataCollector.getInstance(context).sendDeviceData(context, appVersion);
 
         // Update app version count
-        StaticDataCollector.getInstance().updateAppVersionCount(appId, appVersion);
+        StaticDataCollector.getInstance(context).updateAppVersionCount(appId, appVersion);
 
         // Update user count
-        StaticDataCollector.getInstance().updateUserCount(context, appId);
+        StaticDataCollector.getInstance(context).updateUserCount(context, appId);
     }
 
     // Start tracking activity
